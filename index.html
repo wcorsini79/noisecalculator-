@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Exposição Auditiva - FPSO Bacalhau</title>
+    <style>
+        :root {
+            --verde: #4CAF50;
+            --amarelo: #FFC107;
+            --laranja: #FF9800;
+            --vermelho: #F44336;
+            --cinza-claro: #f5f5f5;
+            --cinza-escuro: #333;
+            --azul-profissional: #2196F3;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f0f2f5;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            background-color: var(--azul-profissional);
+            color: white;
+            padding: 20px;
+            border-radius: 8px 8px 0 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .input-section {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        label {
+            font-weight: 600;
+            color: var(--cinza-escuro);
+        }
+        
+        input[type="number"] {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+            width: 100%;
+        }
+        
+        .range-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: #666;
+        }
+        
+        button {
+            background-color: var(--azul-profissional);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #1976D2;
+        }
+        
+        .results-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .results-section {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .result-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        
+        .result-table th, .result-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .result-table th {
+            background-color: var(--cinza-claro);
+            font-weight: 600;
+        }
+        
+        .status-conformidade {
+            font-weight: 600;
+            padding: 5px 10px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        
+        .seguro {
+            background-color: var(--verde);
+            color: white;
+        }
+        
+        .atencao {
+            background-color: var(--amarelo);
+            color: black;
+        }
+        
+        .perigo {
+            background-color: var(--vermelho);
+            color: white;
+        }
+        
+        .limite {
+            background-color: var(--laranja);
+            color: white;
+        }
+        
+        .report-section {
+            margin-top: 20px;
+        }
+        
+        .report-header {
+            background-color: var(--cinza-escuro);
+            color: white;
+            padding: 15px;
+            border-radius: 4px 4px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .report-content {
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 4px 4px;
+            background-color: white;
+        }
+        
+        .section-title {
+            margin-top: 20px;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #ddd;
+            color: var(--azul-profissional);
+        }
+        
+        .alert-box {
+            padding: 15px;
+            border-radius: 4px;
+            margin: 15px 0;
+            font-weight: 600;
+        }
+        
+        .alert-info {
+            background-color: #e3f2fd;
+            border-left: 4px solid var(--azul-profissional);
+        }
+        
+        .alert-warning {
+            background-color: #fff8e1;
+            border-left: 4px solid var(--amarelo);
+        }
+        
+        .alert-danger {
+            background-color: #ffebee;
+            border-left: 4px solid var(--vermelho);
+        }
+        
+        .copy-button {
+            background-color: #6c757d;
+            margin-top: 10px;
+        }
+        
+        .copy-button:hover {
+            background-color: #5a6268;
+        }
+        
+        .normas-list {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        
+        .normas-list li {
+            padding: 5px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .normas-list li:before {
+            content: "•";
+            color: var(--azul-profissional);
+            font-weight: bold;
+            display: inline-block;
+            width: 1em;
+            margin-left: -1em;
+        }
+        
+        .disclaimer {
+            font-size: 0.9rem;
+            font-style: italic;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+            border-left: 4px solid #6c757d;
+        }
+        
+        .formula-box {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 15px 0;
+            border-left: 4px solid var(--azul-profissional);
+            font-family: monospace;
+        }
+        
+        .protecao-info {
+            background-color: #e8f5e8;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 15px 0;
+            border-left: 4px solid var(--verde);
+        }
+        
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        @media (max-width: 768px) {
+            .input-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Calculadora de Exposição Auditiva - FPSO Bacalhau</h1>
+            <p class="subtitle">Cálculos baseados na NR-15, ABNT NBR ISO 1999 e ISO 9612</p>
+	<p class="subtitle">por Wilkinson Corsini</p>
+        </header>
+        
+        <div class="card">
+            <div class="input-section">
+                <div class="input-row">
+                    <div class="input-group">
+                        <label for="ruido">Nível de Ruído (dB):</label>
+                        <input type="number" id="ruido" min="70" max="140" step="0.1" placeholder="Ex: 85.5">
+                        <div class="range-info">
+                            <span>Mínimo: 70 dB</span>
+                            <span>Máximo: 140 dB</span>
+                        </div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="protecao">Nível de Proteção Auditiva (dB):</label>
+                        <input type="number" id="protecao" min="0" max="40" step="0.1" value="0" placeholder="Ex: 25.0">
+                        <div class="range-info">
+                            <span>Mínimo: 0 dB</span>
+                            <span>Máximo: 40 dB</span>
+                        </div>
+                    </div>
+                </div>
+                <button id="calcular">Calcular Exposição</button>
+            </div>
+        </div>
+        
+        <div id="resultados" style="display: none;">
+            <div class="results-section">
+                <div class="card">
+                    <h2>Tabela 1 - Resultados 8 Horas (Conforme NR-15)</h2>
+                    <table class="result-table">
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Valor</th>
+                        </tr>
+                        <tr>
+                            <td>Nível de Ruído Inserido</td>
+                            <td id="nivel-ruido">-</td>
+                        </tr>
+                        <tr>
+                            <td>Nível com Proteção</td>
+                            <td id="nivel-com-protecao">-</td>
+                        </tr>
+                        <tr>
+                            <td>Nível de Ação (NR-15)</td>
+                            <td>80 dB</td>
+                        </tr>
+                        <tr>
+                            <td>Limite de Exposição (NR-15)</td>
+                            <td>85 dB</td>
+                        </tr>
+                        <tr>
+                            <td>Dose Diária Calculada</td>
+                            <td id="dose-8h">-</td>
+                        </tr>
+                        <tr>
+                            <td>Status de Conformidade</td>
+                            <td id="status-8h">-</td>
+                        </tr>
+                        <tr>
+                            <td>Tempo Máximo Permitido</td>
+                            <td id="tempo-maximo">-</td>
+                        </tr>
+                        <tr>
+                            <td>Proteção Auditiva Necessária</td>
+                            <td id="protecao-8h">-</td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <div class="card">
+                    <h2>Tabela 2 - Simulação 12 Horas</h2>
+                    <table class="result-table">
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Valor</th>
+                        </tr>
+                        <tr>
+                            <td>Nível de Ruído (mesmo)</td>
+                            <td id="nivel-ruido-12h">-</td>
+                        </tr>
+                        <tr>
+                            <td>Nível com Proteção</td>
+                            <td id="nivel-com-protecao-12h">-</td>
+                        </tr>
+                        <tr>
+                            <td>Limite Equivalente 12h</td>
+                            <td id="limite-12h">-</td>
+                        </tr>
+                        <tr>
+                            <td>Dose Acumulada (12h)</td>
+                            <td id="dose-12h">-</td>
+                        </tr>
+                        <tr>
+                            <td>Excedência vs. Limite</td>
+                            <td id="excedencia">-</td>
+                        </tr>
+                        <tr>
+                            <td>Risco Auditivo Potencial</td>
+                            <td id="risco-12h">-</td>
+                        </tr>
+                        <tr>
+                            <td>Recomendação</td>
+                            <td id="recomendacao-12h">-</td>
+                        </tr>
+                        <tr>
+                            <td>Monitoramento Auditivo</td>
+                            <td id="monitoramento-12h">-</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="card report-section">
+                <div class="report-header">
+                    <h2>Relatório Técnico de Exposição Auditiva</h2>
+                    <button class="copy-button" id="copiar-relatorio">Copiar Relatório</button>
+                </div>
+                <div class="report-content" id="relatorio-tecnico">
+                    <!-- Conteúdo do relatório será preenchido via JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const calcularBtn = document.getElementById('calcular');
+            const copiarBtn = document.getElementById('copiar-relatorio');
+            const resultadosDiv = document.getElementById('resultados');
+            const ruidoInput = document.getElementById('ruido');
+            const protecaoInput = document.getElementById('protecao');
+            
+            calcularBtn.addEventListener('click', calcularExposicao);
+            copiarBtn.addEventListener('click', copiarRelatorio);
+            
+            function calcularExposicao() {
+                // Obter e validar os valores de entrada
+                const nivelRuido = parseFloat(ruidoInput.value);
+                const nivelProtecao = parseFloat(protecaoInput.value);
+                
+                if (isNaN(nivelRuido) || nivelRuido < 70 || nivelRuido > 140) {
+                    alert('Por favor, insira um valor válido entre 70 e 140 dB.');
+                    return;
+                }
+                
+                if (isNaN(nivelProtecao) || nivelProtecao < 0 || nivelProtecao > 40) {
+                    alert('Por favor, insira um valor válido entre 0 e 40 dB para proteção.');
+                    return;
+                }
+                
+                // Calcular nível efetivo com proteção
+                const nivelEfetivo = nivelRuido - nivelProtecao;
+                
+                // Calcular dose para 8 horas (regra de redução pela metade a cada 5 dB)
+                const dose8h = calcularDose8Horas(nivelEfetivo);
+                const status8h = determinarStatusConformidade(dose8h);
+                const tempoMaximo = calcularTempoMaximo(nivelEfetivo);
+                const protecao8h = nivelEfetivo >= 80 ? 'SIM' : 'NÃO';
+                
+                // Calcular dose para 12 horas usando interpolação linear
+                const limite12h = calcularLimite12Horas();
+                const dose12h = calcularDose12Horas(nivelEfetivo, limite12h);
+                const excedencia = calcularExcedencia(dose12h);
+                const risco12h = determinarRisco(dose12h);
+                const recomendacao12h = determinarRecomendacao(nivelEfetivo, dose12h);
+                const monitoramento12h = determinarMonitoramento(nivelEfetivo);
+                
+                // Atualizar a Tabela 1
+                document.getElementById('nivel-ruido').textContent = nivelRuido + ' dB';
+                document.getElementById('nivel-com-protecao').textContent = nivelEfetivo.toFixed(1) + ' dB';
+                document.getElementById('dose-8h').textContent = dose8h.toFixed(1) + '%';
+                document.getElementById('status-8h').innerHTML = formatarStatus(status8h);
+                document.getElementById('tempo-maximo').textContent = tempoMaximo;
+                document.getElementById('protecao-8h').textContent = protecao8h;
+                
+                // Atualizar a Tabela 2
+                document.getElementById('nivel-ruido-12h').textContent = nivelRuido + ' dB';
+                document.getElementById('nivel-com-protecao-12h').textContent = nivelEfetivo.toFixed(1) + ' dB';
+                document.getElementById('limite-12h').textContent = limite12h.toFixed(1) + ' dB';
+                document.getElementById('dose-12h').textContent = dose12h.toFixed(1) + '%';
+                document.getElementById('excedencia').textContent = excedencia;
+                document.getElementById('risco-12h').textContent = risco12h;
+                document.getElementById('recomendacao-12h').textContent = recomendacao12h;
+                document.getElementById('monitoramento-12h').textContent = monitoramento12h;
+                
+                // Gerar relatório técnico
+                gerarRelatorioTecnico(nivelRuido, nivelProtecao, nivelEfetivo, dose8h, dose12h, status8h, limite12h);
+                
+                // Mostrar resultados
+                resultadosDiv.style.display = 'block';
+            }
+            
+            function calcularDose8Horas(nivelEfetivo) {
+                // Fórmula baseada na redução pela metade a cada 5 dB
+                // Tempo máximo permitido = 8 * 2^((85 - nivelEfetivo)/5)
+                if (nivelEfetivo <= 85) {
+                    return 100; // 100% no limite de 85 dB
+                }
+                
+                const tempoPermitido = 8 * Math.pow(2, (85 - nivelEfetivo) / 5);
+                return (8 / tempoPermitido) * 100;
+            }
+            
+            function calcularLimite12Horas() {
+                // Interpolação linear entre 8h (85 dB) e 16h (80 dB)
+                // Taxa: 5 dB para 8 horas de diferença = 0,625 dB por hora
+                // 12h = 4h a mais que 8h → 85 - (4 * 0,625) = 82,5 dB
+                return 85 - (4 * 0.625);
+            }
+            
+            function calcularDose12Horas(nivelEfetivo, limite12h) {
+                if (nivelEfetivo <= limite12h) {
+                    return 100; // 100% no limite equivalente
+                }
+                
+                // Tempo máximo permitido para 12h = 12 * 2^((limite12h - nivelEfetivo)/5)
+                const tempoPermitido = 12 * Math.pow(2, (limite12h - nivelEfetivo) / 5);
+                return (12 / tempoPermitido) * 100;
+            }
+            
+            function determinarStatusConformidade(dose) {
+                // Verde para 100% ou menos (conforme solicitado)
+                if (dose <= 100) return 'seguro';
+                if (dose <= 150) return 'atencao';
+                return 'perigo';
+            }
+            
+            function calcularTempoMaximo(nivelEfetivo) {
+                if (nivelEfetivo <= 85) return '8 horas';
+                
+                // Tempo máximo = 8 * 2^((85 - nivelEfetivo)/5)
+                const tempo = 8 * Math.pow(2, (85 - nivelEfetivo) / 5);
+                
+                // Converter para horas e minutos
+                const horas = Math.floor(tempo);
+                const minutos = Math.round((tempo - horas) * 60);
+                
+                if (minutos === 0) {
+                    return `${horas} horas`;
+                } else {
+                    return `${horas}h ${minutos}min`;
+                }
+            }
+            
+            function calcularExcedencia(dose12h) {
+                const excedencia = dose12h - 100;
+                if (excedencia <= 0) return '0%';
+                return '+' + excedencia.toFixed(1) + '%';
+            }
+            
+            function determinarRisco(dose12h) {
+                if (dose12h <= 100) return 'BAIXO';
+                if (dose12h <= 150) return 'MODERADO';
+                if (dose12h <= 200) return 'ALTO';
+                return 'MUITO ALTO';
+            }
+            
+            function determinarRecomendacao(nivelEfetivo, dose12h) {
+                if (nivelEfetivo < 80) return 'EPIs conforme avaliação';
+                if (dose12h <= 100) return 'EPIs obrigatórios';
+                return 'EPIs+EPC obrigatórios';
+            }
+            
+            function determinarMonitoramento(nivelEfetivo) {
+                if (nivelEfetivo < 80) return 'BIENAL';
+                if (nivelEfetivo < 85) return 'ANUAL';
+                return 'SEMESTRAL';
+            }
+            
+            function formatarStatus(status) {
+                const classes = {
+                    'seguro': 'seguro',
+                    'atencao': 'atencao',
+                    'perigo': 'perigo'
+                };
+                
+                const textos = {
+                    'seguro': 'CONFORME',
+                    'atencao': 'ATENÇÃO',
+                    'perigo': 'NÃO CONFORME'
+                };
+                
+                return `<span class="status-conformidade ${classes[status]}">${textos[status]}</span>`;
+            }
+            
+            function sugerirProtecao(nivelRuido, nivelProtecaoAtual) {
+                let sugestao = '';
+                let tipoProtecao = '';
+                let nivelRecomendado = 0;
+                
+                if (nivelRuido <= 85) {
+                    tipoProtecao = 'Protetor auricular inserível (plug)';
+                    nivelRecomendado = 15;
+                } else if (nivelRuido <= 95) {
+                    tipoProtecao = 'Protetor auricular circum-auricular (concha)';
+                    nivelRecomendado = 25;
+                } else if (nivelRuido <= 105) {
+                    tipoProtecao = 'Protetor auricular circum-auricular de alta atenuação';
+                    nivelRecomendado = 30;
+                } else {
+                    tipoProtecao = 'Dupla proteção (plug + concha)';
+                    nivelRecomendado = 35;
+                }
+                
+                const diferenca = nivelRecomendado - nivelProtecaoAtual;
+                
+                if (diferenca > 5) {
+                    sugestao = `⚠️ <strong>Sugestão de melhoria:</strong> Recomenda-se ${tipoProtecao} com atenuação de ${nivelRecomendado} dB (${diferenca.toFixed(1)} dB a mais que o atual)`;
+                } else if (diferenca < -5) {
+                    sugestao = `✅ <strong>Proteção adequada:</strong> ${tipoProtecao} atual está dentro do recomendado`;
+                } else {
+                    sugestao = `ℹ️ <strong>Proteção satisfatória:</strong> ${tipoProtecao} atual está próxima do recomendado (${nivelRecomendado} dB)`;
+                }
+                
+                return {
+                    sugestao: sugestao,
+                    tipo: tipoProtecao,
+                    nivelRecomendado: nivelRecomendado
+                };
+            }
+            
+            function gerarRelatorioTecnico(nivelRuido, nivelProtecao, nivelEfetivo, dose8h, dose12h, status, limite12h) {
+                const relatorio = document.getElementById('relatorio-tecnico');
+                const dataAtual = new Date().toLocaleDateString('pt-BR');
+                const sugestaoProtecao = sugerirProtecao(nivelRuido, nivelProtecao);
+                
+                // Cabeçalho
+                let html = `
+                    <div class="report-header-info">
+                        <h2>Relatório Técnico de Exposição Auditiva</h2>
+                        <p><strong>Plataforma:</strong> FPSO Bacalhau</p>
+                        <p><strong>Data do cálculo:</strong> ${dataAtual}</p>
+                        <p><strong>Calculadora versão:</strong> 1.2 - Baseada em NR-15/ISO 9612/ISO 1999</p>
+                    </div>
+                `;
+                
+                // Seção 1: Parâmetros Inseridos
+                html += `
+                    <div class="section-title">SEÇÃO 1: PARÂMETROS INSERIDOS</div>
+                    <ul>
+                        <li><strong>Nível de ruído informado:</strong> ${nivelRuido} dB(A)</li>
+                        <li><strong>Nível de proteção auditiva:</strong> ${nivelProtecao} dB</li>
+                        <li><strong>Nível efetivo de exposição:</strong> ${nivelEfetivo.toFixed(1)} dB(A)</li>
+                        <li><strong>Período de avaliação:</strong> 8 e 12 horas</li>
+                        <li><strong>Base normativa:</strong> NR-15 / ISO 9612</li>
+                    </ul>
+                `;
+                
+                // Seção 2: Resultados Técnicos
+                html += `
+                    <div class="section-title">SEÇÃO 2: RESULTADOS TÉCNICOS</div>
+                    <ul>
+                        <li><strong>Dose para 8h:</strong> ${dose8h.toFixed(1)}%</li>
+                        <li><strong>Limite equivalente para 12h:</strong> ${limite12h.toFixed(1)} dB</li>
+                        <li><strong>Dose para 12h:</strong> ${dose12h.toFixed(1)}%</li>
+                        <li><strong>Avaliação de conformidade:</strong> ${formatarStatus(status)}</li>
+                    </ul>
+                    
+                    <div class="formula-box">
+                        <strong>Fórmulas utilizadas:</strong><br>
+                        • Nível Efetivo = Nível Ruído - Proteção Auditiva<br>
+                        • Dose 8h = (8 / [8 × 2^((85 - NívelEfetivo)/5)]) × 100<br>
+                        • Limite 12h = 85 - (4 × 0,625) = 82,5 dB<br>
+                        • Dose 12h = (12 / [12 × 2^((82,5 - NívelEfetivo)/5)]) × 100
+                    </div>
+                `;
+                
+                // Seção 3: Análise de Proteção Auditiva
+                html += `
+                    <div class="section-title">SEÇÃO 3: ANÁLISE DE PROTEÇÃO AUDITIVA</div>
+                    <div class="protecao-info">
+                        ${sugestaoProtecao.sugestao}
+                        <br><br>
+                        <strong>Detalhamento:</strong>
+                        <ul>
+                            <li><strong>Tipo recomendado:</strong> ${sugestaoProtecao.tipo}</li>
+                            <li><strong>Nível de atenuação recomendado:</strong> ${sugestaoProtecao.nivelRecomendado} dB</li>
+                            <li><strong>Nível atual utilizado:</strong> ${nivelProtecao} dB</li>
+                            <li><strong>Redução efetiva no nível de exposição:</strong> ${(nivelRuido - nivelEfetivo).toFixed(1)} dB</li>
+                        </ul>
+                    </div>
+                `;
+                
+                // Seção 4: Interpretação Normativa
+                html += `
+                    <div class="section-title">SEÇÃO 4: INTERPRETAÇÃO NORMATIVA</div>
+                `;
+                
+                if (dose8h <= 100) {
+                    html += `
+                        <div class="alert-box alert-info">
+                            ✅ CONFORME COM NR-15. Exposição dentro dos limites permitidos para 8 horas.
+                        </div>
+                    `;
+                } else if (dose8h <= 150) {
+                    html += `
+                        <div class="alert-box alert-warning">
+                            ⚠️ ATENÇÃO - Próximo ao limite. EPIs obrigatórios. Reavaliar condições de trabalho.
+                        </div>
+                    `;
+                } else {
+                    html += `
+                        <div class="alert-box alert-danger">
+                            🔴 NÃO CONFORME - ACIMA DO LIMITE. EPIs obrigatórios imediatos. Avaliação audiométrica semestral.
+                        </div>
+                    `;
+                }
+                
+                // Seção 5: Recomendações
+                html += `
+                    <div class="section-title">SEÇÃO 5: RECOMENDAÇÕES</div>
+                `;
+                
+                // Frequência de monitoramento
+                let frequenciaMonitoramento = '';
+                if (nivelEfetivo < 80) {
+                    frequenciaMonitoramento = 'Bienal (a cada 2 anos)';
+                } else if (nivelEfetivo < 85) {
+                    frequenciaMonitoramento = 'Anual';
+                } else {
+                    frequenciaMonitoramento = 'Semestral';
+                }
+                
+                // Próximas ações
+                let proximasAcoes = '';
+                if (dose8h <= 100) {
+                    proximasAcoes = 'Manter condições atuais. Reavaliar em caso de mudanças no ambiente.';
+                } else if (dose8h <= 150) {
+                    proximasAcoes = 'Implementar Programa de Conservação Auditiva. Fornecer EPIs adequados.';
+                } else {
+                    proximasAcoes = 'Ações imediatas: Implementar controles de engenharia, revisar EPIs, realizar audiometria.';
+                }
+                
+                html += `
+                    <ul>
+                        <li><strong>Frequência de monitoramento audiométrico:</strong> ${frequenciaMonitoramento}</li>
+                        <li><strong>Próximas ações recomendadas:</strong> ${proximasAcoes}</li>
+                        <li><strong>Treinamento obrigatório:</strong> Uso correto e manutenção de EPIs</li>
+                        <li><strong>Inspeções regulares:</strong> Verificação da integridade dos protetores auditivos</li>
+                    </ul>
+                `;
+                
+                // Normas e Referências
+                html += `
+                    <div class="section-title">NORMAS E REFERÊNCIAS APLICADAS</div>
+                    <ul class="normas-list">
+                        <li>NR-15 Anexo 1 (Brasil) - Limite 85 dB(A) para 8h</li>
+                        <li>ISO 9612:2009 - Métodos de medição</li>
+                        <li>ISO 1999:2013 - Audiometria ocupacional</li>
+                        <li>NR-6 - Equipamentos de Proteção Individual</li>
+                        <li>Resolução CEREST - Monitoramento de saúde auditiva</li>
+                        <li>Estudos recentes de proteção auditiva (2023-2024)</li>
+                    </ul>
+                `;
+                
+                // Disclaimer
+                html += `
+                    <div class="disclaimer">
+                        <strong>Interpretação Final:</strong> Este cálculo é baseado em dados técnicos e legislação vigente. 
+                        Recomenda-se validação com especialista em higiene ocupacional e audiometria ocupacional para 
+                        decisões finais sobre programa de conservação auditiva.
+                    </div>
+                `;
+                
+                relatorio.innerHTML = html;
+            }
+            
+            function copiarRelatorio() {
+                const relatorio = document.getElementById('relatorio-tecnico');
+                const range = document.createRange();
+                range.selectNode(relatorio);
+                window.getSelection().removeAllRanges();
+                window.getSelection().addRange(range);
+                
+                try {
+                    const successful = document.execCommand('copy');
+                    if (successful) {
+                        alert('Relatório copiado para a área de transferência!');
+                    } else {
+                        alert('Falha ao copiar o relatório. Tente novamente.');
+                    }
+                } catch (err) {
+                    alert('Erro ao copiar o relatório: ' + err);
+                }
+                
+                window.getSelection().removeAllRanges();
+            }
+        });
+    </script>
+</body>
+</html>
